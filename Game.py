@@ -132,26 +132,28 @@ class Game(object):
             row, col, used, last_pos, turns = q_elem = self.q.get()
             if turns > 3:
                 continue
-            for d_row, d_col in Game.d:
-                result = self.step_result(q_elem, target_point, target_color, (d_row, d_col))
-                if result == 0:
-                    continue
+
+            finish_d = list(filter(lambda d: self.step_result(q_elem, target_point, target_color, d) == 2, self.d))
+            if len(finish_d) != 0:
+                d_row, d_col = finish_d[0]
                 used.append((row + d_row, col + d_col))
-                if result == 1:
-                    last_pos_bak = last_pos
-                    if (d_row, d_col) != last_pos:
-                        turns += 1
-                    last_pos = (d_row, d_col)
-                    self.q.put((row + d_row, col + d_col, used[:], last_pos, turns))
-                    used.pop()
-                    if last_pos_bak != last_pos:
-                        last_pos = last_pos_bak
-                        turns -= 1
-                elif result == 2:
-                    self.drawer.erase((original_row, original_col), (target_row, target_col))
-                    self.drawer.draw_line(used)
-                    if self.is_empty():
-                        self.drawer.congratulations()
-                    self.chosen = None
-                    found = True
-                    break
+                self.drawer.erase((original_row, original_col), (target_row, target_col))
+                self.drawer.draw_line(used)
+                if self.is_empty():
+                    self.drawer.congratulations()
+                self.chosen = None
+                found = True
+
+            step_d = list(filter(lambda d: self.step_result(q_elem, target_point, target_color, d) == 1, self.d))
+            for d_row, d_col in step_d:
+                used.append((row + d_row, col + d_col))
+                last_pos_bak = last_pos
+                if (d_row, d_col) != last_pos:
+                    turns += 1
+                last_pos = (d_row, d_col)
+                self.q.put((row + d_row, col + d_col, used[:], last_pos, turns))
+                used.pop()
+                if last_pos_bak != last_pos:
+                    last_pos = last_pos_bak
+                    turns -= 1
+
