@@ -136,8 +136,8 @@ class Game(object):
                 result = self.step_result(q_elem, target_point, target_color, (d_row, d_col))
                 if result == 0:
                     continue
+                used.append((row + d_row, col + d_col))
                 if result == 1:
-                    used.append((row + d_row, col + d_col))
                     last_pos_bak = last_pos
                     if (d_row, d_col) != last_pos:
                         turns += 1
@@ -148,7 +148,6 @@ class Game(object):
                         last_pos = last_pos_bak
                         turns -= 1
                 elif result == 2:
-                    used.append((target_row, target_col))
                     self.drawer.erase((original_row, original_col), (target_row, target_col))
                     self.drawer.draw_line(used)
                     if self.is_empty():
