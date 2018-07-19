@@ -72,7 +72,7 @@ class GameGrid(object):
         color = self.get_color(col, row)
         if color == "#FFFFFF":
             return
-        self.highlight(row, col)
+        self.highlight([row, col])
         if self.chosen is None or self.chosen == (row, col):
             self.chosen = (row, col)
         else:
@@ -84,7 +84,7 @@ class GameGrid(object):
                 return
             self.q.queue.clear()
             self.q.put((original_row, original_col, [(original_row, original_col)], 0, None, 0))
-            self.bfs([original_row, original_col], [row, col]l, color)
+            self.bfs((original_row, original_col), (row, col), color)
 
     def draw(self):
         for row in range(self.row):
@@ -114,7 +114,8 @@ class GameGrid(object):
             print((x0 + x1) / 2, (y0 + y1) / 2, (x2 + x3) / 2, (y2 + y3) / 2)
             w.create_line((x0 + x1) / 2, (y0 + y1) / 2, (x2 + x3) / 2, (y2 + y3) / 2, fill="white", width=2)
 
-    def highlight(self, row, col):
+    def highlight(self, point):
+        row, col = point
         if self.highlighted is not None:
             highlighted_row, highlighted_col = self.highlighted
             x0, y0, x1, y1 = self.get_pos(highlighted_col, highlighted_row)
@@ -125,7 +126,9 @@ class GameGrid(object):
         w.create_rectangle(x2, y2, x3, y3, fill=color, outline="#FFFFFF", dash=(10, 10))
         self.highlighted = (row, col)
 
-    def erase(self, original_row, original_col, target_row, target_col):
+    def erase(self, original_point, target_point):
+        original_row, original_col = original_point
+        target_row, target_col = target_point
         print(type(w))
         self.matrix[original_row][original_col] = 0
         self.matrix[target_row][target_col] = 0
@@ -173,7 +176,7 @@ class GameGrid(object):
                         if (d_row, d_col) != last_pos and turns > 2:
                             continue
                         used.append((target_row, target_col))
-                        self.erase(original_row, original_col, target_row, target_col)
+                        self.erase((original_row, original_col), (target_row, target_col))
                         self.draw_line(used)
                         if self.is_empty():
                             self.congratulations()
