@@ -96,7 +96,7 @@ class Game(object):
                 return
             self.q.queue.clear()
             self.q.put((original_row, original_col, [(original_row, original_col)], None, 0))
-            self.bfs((original_row, original_col), (row, col), color)
+            self.bfs((original_row, original_col), ((row, col), color))
 
     def step_result(self, q_elem, target_point, target_color, d):
         row, col, used, last_pos, turns = q_elem
@@ -124,8 +124,9 @@ class Game(object):
         else:
             return 1
 
-    def bfs(self, original_point, target_point, target_color):
+    def bfs(self, original_point, target_info):
         original_row, original_col = original_point
+        target_point, target_color = target_info
         target_row, target_col = target_point
         found = False
         while not self.q.empty() and not found:
