@@ -57,7 +57,7 @@ class GameGrid(object):
     def get_size(self):
         return self.row * (size + border) + border + offset * 2, self.col * (size + border) + border + offset * 2
 
-    def outside_grid(self, event, point):
+    def point_outside_grid(self, event, point):
         row, col = point
         if event.x < (size + border) * col + border or event.y < (size + border) * row + border:
             return True
@@ -67,7 +67,7 @@ class GameGrid(object):
     def call_back(self, event):
         col = (event.x - offset) // (size + border)
         row = (event.y - offset) // (size + border)
-        if self.outside_grid(event, [row, col]):
+        if self.point_outside_grid(event, [row, col]):
             return
         color = self.get_color(col, row)
         if color == "#FFFFFF":
@@ -83,7 +83,7 @@ class GameGrid(object):
             if original_color != color:
                 return
             self.q.queue.clear()
-            self.q.put((original_row, original_col, [(original_row, original_col)], 0, None, 0))
+            self.q.put((original_row, original_col, [(original_row, original_col)], None, 0))
             self.bfs((original_row, original_col), (row, col), color)
 
     def draw(self):
@@ -139,66 +139,72 @@ class GameGrid(object):
         target_color = self.get_color(target_col, target_row)
         w.create_rectangle(x2, y2, x3, y3, fill=target_color, outline=target_color)
 
-    def congratulations(self):
+    @staticmethod
+    def congratulations():
         w.delete("all")
         label = Label(root, text="恭喜你，通关啦！")
         label.pack()
+
+    def step_result(self, q_elem, target_point, target_color, d):
+        row, col, used, last_pos, turns = q_elem
+        target_row, target_col = target_point
+        d_row, d_col = d
+        if (row + d_row, col + d_col) in used:
+            return 0
+        if row + d_row < -1 or row + d_row > self.row or col + d_col < -1 or col + d_col > self.col:
+            return 0
+        if 0 <= row + d_row <= self.row - 1 and 0 <= col + d_col <= self.col - 1:
+            color = self.get_color(col + d_col, row + d_row)
+            if color != "#FFFFFF" and color != target_color:
+                return 0
+            if color != "#FFFFFF" and (row + d_row, col + d_col) != (target_row, target_col):
+                return 0
+            if color == "#FFFFFF":
+                return 1
+            elif color == target_color and row + d_row == target_row and col + d_col == target_col:
+                if (d_row, d_col) != last_pos and turns > 2:
+                    return 0
+                else:
+                    return 2
+        else:
+            return 1
 
     def bfs(self, original_point, target_point, target_color):
         original_row, original_col = original_point
         target_row, target_col = target_point
         found = False
         while not self.q.empty() and not found:
-            row, col, used, depth, last_pos, turns = self.q.get()
+            row, col, used, last_pos, turns = q_elem = self.q.get()
             if turns > 3:
                 continue
             for d_row, d_col in d:
-                if (row + d_row, col + d_col) in used:
+                result = self.step_result(q_elem, target_point, target_color, (d_row, d_col))
+                if result == 0:
                     continue
-                if row + d_row < -1 or row + d_row > self.row or col + d_col < -1 or col + d_col > self.col:
-                    continue
-                if 0 <= row + d_row <= self.row - 1 and 0 <= col + d_col <= self.col - 1:
-                    color = self.get_color(col + d_col, row + d_row)
-                    if color != "#FFFFFF" and color != target_color:
-                        continue
-                    elif color == "#FFFFFF":
-                        used.append((row + d_row, col + d_col))
-                        last_pos_bak = last_pos
-                        if (d_row, d_col) != last_pos:
-                            turns += 1
-                        last_pos = (d_row, d_col)
-                        self.q.put((row + d_row, col + d_col, used[:], depth + 1, last_pos, turns))
-                        used.pop()
-                        if last_pos_bak != last_pos:
-                            last_pos = last_pos_bak
-                            turns -= 1
-                    elif color == target_color and row + d_row == target_row and col + d_col == target_col:
-                        if (d_row, d_col) != last_pos and turns > 2:
-                            continue
-                        used.append((target_row, target_col))
-                        self.erase((original_row, original_col), (target_row, target_col))
-                        self.draw_line(used)
-                        if self.is_empty():
-                            self.congratulations()
-                        self.chosen = None
-                        found = True
-                        break
-                elif row + d_row == -1 or row + d_row == self.row or col + d_col == -1 or col + d_col == self.col:
+                if result == 1:
                     used.append((row + d_row, col + d_col))
                     last_pos_bak = last_pos
                     if (d_row, d_col) != last_pos:
                         turns += 1
                     last_pos = (d_row, d_col)
-                    self.q.put((row + d_row, col + d_col, used[:], depth + 1, last_pos, turns))
+                    self.q.put((row + d_row, col + d_col, used[:], last_pos, turns))
                     used.pop()
                     if last_pos_bak != last_pos:
                         last_pos = last_pos_bak
                         turns -= 1
-
+                elif result == 2:
+                    used.append((target_row, target_col))
+                    self.erase((original_row, original_col), (target_row, target_col))
+                    self.draw_line(used)
+                    if self.is_empty():
+                        self.congratulations()
+                    self.chosen = None
+                    found = True
+                    break
 
 if __name__ == "__main__":
     game_grid = GameGrid(8, 12, len(colors) - 1)
-    #game_grid = GameGrid(3, 2, 1)
+    # game_grid = GameGrid(3, 2, 1)
     game_grid.generate()
     height, width = game_grid.get_size()
     root = Tk()
