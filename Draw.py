@@ -23,10 +23,8 @@ class Draw(object):
         for i in range(len(used) - 1):
             begin_row, begin_col = used[i]
             end_row, end_col = used[i + 1]
-            print((begin_row, begin_col), (end_row, end_col))
             x0, y0, x1, y1 = self.game.get_pos(begin_col, begin_row)
             x2, y2, x3, y3 = self.game.get_pos(end_col, end_row)
-            print((x0 + x1) / 2, (y0 + y1) / 2, (x2 + x3) / 2, (y2 + y3) / 2)
             self.w.create_line((x0 + x1) / 2, (y0 + y1) / 2, (x2 + x3) / 2, (y2 + y3) / 2, fill="red", width=2)
             self.w.after(300, self.erase_line, used)
 
@@ -34,10 +32,8 @@ class Draw(object):
         for i in range(len(used) - 1):
             begin_row, begin_col = used[i]
             end_row, end_col = used[i + 1]
-            print((begin_row, begin_col), (end_row, end_col))
             x0, y0, x1, y1 = self.game.get_pos(begin_col, begin_row)
             x2, y2, x3, y3 = self.game.get_pos(end_col, end_row)
-            print((x0 + x1) / 2, (y0 + y1) / 2, (x2 + x3) / 2, (y2 + y3) / 2)
             self.w.create_line((x0 + x1) / 2, (y0 + y1) / 2, (x2 + x3) / 2, (y2 + y3) / 2, fill="white", width=2)
 
     def highlight(self, point):
@@ -54,7 +50,6 @@ class Draw(object):
     def erase(self, original_point, target_point):
         original_row, original_col = original_point
         target_row, target_col = target_point
-        print(type(self.w))
         self.game.matrix[original_row][original_col] = 0
         self.game.matrix[target_row][target_col] = 0
         x0, y0, x1, y1 = self.game.get_pos(original_col, original_row)
@@ -69,5 +64,6 @@ class Draw(object):
         label = Label(self.root, text="恭喜你，通关啦！")
         label.pack()
 
-    def play(self):
+    @staticmethod
+    def play():
         mainloop()
