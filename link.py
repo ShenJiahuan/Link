@@ -57,11 +57,17 @@ class GameGrid(object):
     def get_size(self):
         return self.row * (size + border) + border + offset * 2, self.col * (size + border) + border + offset * 2
 
+    def outside_grid(self, event, point):
+        row, col = point
+        if event.x < (size + border) * col + border or event.y < (size + border) * row + border:
+            return True
+        if col < 0 or row < 0 or col >= self.col or row >= self.row:
+            return True
+
     def call_back(self, event):
         col = (event.x - offset) // (size + border)
         row = (event.y - offset) // (size + border)
-        if event.x < (size + border) * col + border or event.y < (size + border) * row + border or col < 0 or row < 0 \
-                or col >= self.col or row >= self.row:
+        if self.outside_grid(event, [row, col]):
             return
         color = self.get_color(col, row)
         if color == "#FFFFFF":
@@ -78,7 +84,7 @@ class GameGrid(object):
                 return
             self.q.queue.clear()
             self.q.put((original_row, original_col, [(original_row, original_col)], 0, None, 0))
-            self.bfs(original_row, original_col, row, col, color)
+            self.bfs([original_row, original_col], [row, col]l, color)
 
     def draw(self):
         for row in range(self.row):
@@ -135,7 +141,9 @@ class GameGrid(object):
         label = Label(root, text="恭喜你，通关啦！")
         label.pack()
 
-    def bfs(self, original_row, original_col, target_row, target_col, target_color):
+    def bfs(self, original_point, target_point, target_color):
+        original_row, original_col = original_point
+        target_row, target_col = target_point
         found = False
         while not self.q.empty() and not found:
             row, col, used, depth, last_pos, turns = self.q.get()
@@ -144,9 +152,9 @@ class GameGrid(object):
             for d_row, d_col in d:
                 if (row + d_row, col + d_col) in used:
                     continue
-                elif row + d_row < -1 or row + d_row > self.row or col + d_col < -1 or col + d_col > self.col:
+                if row + d_row < -1 or row + d_row > self.row or col + d_col < -1 or col + d_col > self.col:
                     continue
-                elif 0 <= row + d_row <= self.row - 1 and 0 <= col + d_col <= self.col - 1:
+                if 0 <= row + d_row <= self.row - 1 and 0 <= col + d_col <= self.col - 1:
                     color = self.get_color(col + d_col, row + d_row)
                     if color != "#FFFFFF" and color != target_color:
                         continue
@@ -185,14 +193,15 @@ class GameGrid(object):
                         turns -= 1
 
 
-game_grid = GameGrid(8, 12, len(colors) - 1)
-#game_grid = GameGrid(3, 2, 1)
-game_grid.generate()
-height, width = game_grid.get_size()
-root = Tk()
-root.title("连连看")
-w = Canvas(root, width=width, height=height, background="white")
-w.pack()
-w.bind_all("<Button-1>", game_grid.call_back)
-game_grid.draw()
-mainloop()
+if __name__ == "__main__":
+    game_grid = GameGrid(8, 12, len(colors) - 1)
+    #game_grid = GameGrid(3, 2, 1)
+    game_grid.generate()
+    height, width = game_grid.get_size()
+    root = Tk()
+    root.title("连连看")
+    w = Canvas(root, width=width, height=height, background="white")
+    w.pack()
+    w.bind_all("<Button-1>", game_grid.call_back)
+    game_grid.draw()
+    mainloop()
