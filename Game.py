@@ -102,19 +102,21 @@ class Game(object):
         row, col, used, last_pos, turns = q_elem
         target_row, target_col = target_point
         d_row, d_col = d
-        if (row + d_row, col + d_col) in used:
+        new_row = row + d_row
+        new_col = col + d_col
+        if (new_row, new_col) in used:
             return 0
-        if row + d_row < -1 or row + d_row > self.row or col + d_col < -1 or col + d_col > self.col:
+        if new_row < -1 or new_row > self.row or new_col < -1 or new_col > self.col:
             return 0
-        if 0 <= row + d_row <= self.row - 1 and 0 <= col + d_col <= self.col - 1:
-            color = self.get_color(col + d_col, row + d_row)
+        if 0 <= new_row <= self.row - 1 and 0 <= new_col <= self.col - 1:
+            color = self.get_color(new_col, new_row)
             if color != "#FFFFFF" and color != target_color:
                 return 0
-            if color != "#FFFFFF" and (row + d_row, col + d_col) != (target_row, target_col):
+            if color != "#FFFFFF" and (new_row, new_col) != (target_row, target_col):
                 return 0
             if color == "#FFFFFF":
                 return 1
-            elif color == target_color and row + d_row == target_row and col + d_col == target_col:
+            elif color == target_color and new_row == target_row and new_col == target_col:
                 if (d_row, d_col) != last_pos and turns > 2:
                     return 0
                 else:
