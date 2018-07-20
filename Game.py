@@ -45,22 +45,19 @@ class Game(object):
 
     @staticmethod
     def get_pos(x, y):
-        x0, y0 = x * (Game.size + Game.border) + Game.border + Game.offset, \
-                 y * (Game.size + Game.border) + Game.border + Game.offset
-        x1, y1 = x0 + Game.size, y0 + Game.size
+        x0, y0 = [_ * (Game.size + Game.border) + Game.border + Game.offset for _ in [x, y]]
+        x1, y1 = [_ + Game.size for _ in [x0, y0]]
         return x0, y0, x1, y1
 
     def get_color(self, x, y):
         return Game.colors[self.matrix[y][x]]
 
     def get_size(self):
-        return self.row * (Game.size + Game.border) + Game.border + Game.offset * 2, \
-               self.col * (Game.size + Game.border) + Game.border + Game.offset * 2
+        return [_ * (Game.size + Game.border) + Game.border + Game.offset * 2 for _ in [self.row, self.col]]
 
     @staticmethod
     def get_coordinate(event):
-        return (event.y - Game.offset) // (Game.size + Game.border), \
-               (event.x - Game.offset) // (Game.size + Game.border)
+        return [(_ - Game.offset) // (Game.size + Game.border) for _ in [event.y, event.x]]
 
     def point_outside_grid(self, event, point):
         row, col = point
