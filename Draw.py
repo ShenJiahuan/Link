@@ -19,13 +19,18 @@ class Draw(object):
                 color = self.game.get_color(col, row)
                 self.w.create_rectangle(x0, y0, x1, y1, fill=color, outline=color)
 
+    @staticmethod
+    def _mean(x, y):
+        return (x + y) / 2
+
     def draw_line(self, used):
         for i in range(len(used) - 1):
             begin_row, begin_col = used[i]
             end_row, end_col = used[i + 1]
             x0, y0, x1, y1 = self.game.get_pos(begin_col, begin_row)
             x2, y2, x3, y3 = self.game.get_pos(end_col, end_row)
-            self.w.create_line((x0 + x1) / 2, (y0 + y1) / 2, (x2 + x3) / 2, (y2 + y3) / 2, fill="red", width=2)
+            self.w.create_line(self._mean(x0, x1), self._mean(y0, y1), self._mean(x2, x3), self._mean(y2, y3),
+                               fill="red", width=2)
             self.w.after(300, self.erase_line, used)
 
     def erase_line(self, used):
@@ -34,7 +39,8 @@ class Draw(object):
             end_row, end_col = used[i + 1]
             x0, y0, x1, y1 = self.game.get_pos(begin_col, begin_row)
             x2, y2, x3, y3 = self.game.get_pos(end_col, end_row)
-            self.w.create_line((x0 + x1) / 2, (y0 + y1) / 2, (x2 + x3) / 2, (y2 + y3) / 2, fill="white", width=2)
+            self.w.create_line(self._mean(x0, x1), self._mean(y0, y1), self._mean(x2, x3), self._mean(y2, y3),
+                               fill="white", width=2)
 
     def highlight(self, point):
         row, col = point
