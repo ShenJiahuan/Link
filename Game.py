@@ -43,12 +43,14 @@ class Game(object):
                     count += 1
 
     @staticmethod
-    def get_pos(x, y):
+    def get_pos(pos):
+        y, x = pos
         x0, y0 = [_ * (Game.size + Game.border) + Game.border + Game.offset for _ in [x, y]]
         x1, y1 = [_ + Game.size for _ in [x0, y0]]
         return x0, y0, x1, y1
 
-    def get_color(self, x, y):
+    def get_color(self, pos):
+        y, x = pos
         return Game.colors[self.matrix[y][x]]
 
     def get_size(self):
@@ -70,7 +72,7 @@ class Game(object):
         row, col = self.get_coordinate(event)
         if self.point_outside_grid(event, [row, col]):
             return
-        color = self.get_color(col, row)
+        color = self.get_color((row, col))
         if color == "#FFFFFF":
             return
         self.drawer.highlight([row, col])
@@ -80,8 +82,8 @@ class Game(object):
         else:
             original_row, original_col = self.chosen
             self.chosen = (row, col)
-            original_color = self.get_color(original_col, original_row)
-            color = self.get_color(col, row)
+            original_color = self.get_color((original_row, original_col))
+            color = self.get_color((row, col))
             if original_color != color:
                 return
             self.q.queue.clear()
@@ -99,7 +101,7 @@ class Game(object):
         if new_row < -1 or new_row > self.row or new_col < -1 or new_col > self.col:
             return 0
         if 0 <= new_row <= self.row - 1 and 0 <= new_col <= self.col - 1:
-            color = self.get_color(new_col, new_row)
+            color = self.get_color((new_row, new_col))
             if color != "#FFFFFF" and color != target_color:
                 return 0
             if color != "#FFFFFF" and (new_row, new_col) != (target_row, target_col):
@@ -128,7 +130,7 @@ class Game(object):
                 new_row, new_col = row + d_row, col + d_col
                 used.append((new_row, new_col))
                 self.drawer.erase((original_row, original_col), (target_row, target_col))
-                self.drawer.draw_line(used)
+                self.drawer.line_option(used, "draw")
                 if self.is_empty():
                     self.drawer.congratulations()
                 self.chosen = None
