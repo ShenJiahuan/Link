@@ -47,8 +47,7 @@ class Draw(object):
         self.w.create_rectangle(x2, y2, x3, y3, fill=color, outline="#FFFFFF", dash=(10, 10))
 
     def erase(self, original_point, target_point):
-        original_row, original_col = original_point
-        target_row, target_col = target_point
+        (original_row, original_col), (target_row, target_col) = original_point, target_point
         self.game.matrix[original_row][original_col] = 0
         self.game.matrix[target_row][target_col] = 0
         x0, y0, x1, y1 = self.game.get_pos((original_row, original_col))
