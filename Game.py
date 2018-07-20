@@ -13,8 +13,7 @@ class Game(object):
               "#5E2612", "#0000FF", "#1E90FF", "#00C78C", "#7CFC00", ]
 
     def __init__(self, row, col):
-        self.row = row
-        self.col = col
+        self.row, self.col = row, col
         self.color_num = len(Game.colors) - 1
         self.matrix = [[0 for _ in range(col)] for _ in range(row)]
         self.chosen = None
