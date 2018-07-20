@@ -59,6 +59,11 @@ class Game(object):
         return self.row * (Game.size + Game.border) + Game.border + Game.offset * 2, \
                self.col * (Game.size + Game.border) + Game.border + Game.offset * 2
 
+    @staticmethod
+    def get_coordinate(event):
+        return (event.y - Game.offset) // (Game.size + Game.border), \
+               (event.x - Game.offset) // (Game.size + Game.border)
+
     def point_outside_grid(self, event, point):
         row, col = point
         if event.x < (Game.size + Game.border) * col + Game.border \
@@ -68,8 +73,7 @@ class Game(object):
             return True
 
     def call_back(self, event):
-        col = (event.x - Game.offset) // (Game.size + Game.border)
-        row = (event.y - Game.offset) // (Game.size + Game.border)
+        row, col = self.get_coordinate(event)
         if self.point_outside_grid(event, [row, col]):
             return
         color = self.get_color(col, row)
@@ -90,8 +94,9 @@ class Game(object):
             self.q.put((original_row, original_col, [(original_row, original_col)], None, 0))
             self.bfs((original_row, original_col), ((row, col), color))
 
-    def step_result(self, q_elem, target_point, target_color, d):
+    def step_result(self, q_elem, target_info, d):
         row, col, used, last_pos, turns = q_elem
+        target_point, target_color = target_info
         target_row, target_col = target_point
         d_row, d_col = d
         new_row, new_col = row + d_row, col + d_col
@@ -123,7 +128,7 @@ class Game(object):
             if turns > 3:
                 continue
 
-            finish_d = list(filter(lambda d: self.step_result(q_elem, target_point, target_color, d) == 2, self.d))
+            finish_d = list(filter(lambda d: self.step_result(q_elem, (target_point, target_color), d) == 2, self.d))
             if len(finish_d) != 0:
                 d_row, d_col = finish_d[0]
                 new_row, new_col = row + d_row, col + d_col
@@ -135,7 +140,7 @@ class Game(object):
                 self.chosen = None
                 return
 
-            step_d = list(filter(lambda d: self.step_result(q_elem, target_point, target_color, d) == 1, self.d))
+            step_d = list(filter(lambda d: self.step_result(q_elem, (target_point, target_color), d) == 1, self.d))
             for d_row, d_col in step_d:
                 new_row, new_col = row + d_row, col + d_col
                 used.append((new_row, new_col))
