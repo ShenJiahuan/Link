@@ -29,18 +29,10 @@ class Game(object):
         self.drawer.play()
 
     def is_full(self):
-        for row in range(self.row):
-            for col in range(self.col):
-                if self.matrix[row][col] == 0:
-                    return False
-        return True
+        return len([1 for row in range(self.row) for col in range(self.col) if self.matrix[row][col] == 0]) == 0
 
     def is_empty(self):
-        for row in range(self.row):
-            for col in range(self.col):
-                if self.matrix[row][col] != 0:
-                    return False
-        return True
+        return len([1 for row in range(self.row) for col in range(self.col) if self.matrix[row][col] != 0]) == 0
 
     def generate(self):
         for color in range(1, self.color_num + 1):
@@ -102,8 +94,7 @@ class Game(object):
         row, col, used, last_pos, turns = q_elem
         target_row, target_col = target_point
         d_row, d_col = d
-        new_row = row + d_row
-        new_col = col + d_col
+        new_row, new_col = row + d_row, col + d_col
         if (new_row, new_col) in used:
             return 0
         if new_row < -1 or new_row > self.row or new_col < -1 or new_col > self.col:
@@ -116,11 +107,10 @@ class Game(object):
                 return 0
             if color == "#FFFFFF":
                 return 1
-            elif color == target_color and new_row == target_row and new_col == target_col:
-                if (d_row, d_col) != last_pos and turns > 2:
-                    return 0
-                else:
-                    return 2
+            elif (new_row, new_col) == (target_row, target_col) and (d_row, d_col) != last_pos and turns > 2:
+                return 0
+            elif (new_row, new_col) == (target_row, target_col) and ((d_row, d_col) == last_pos or turns <= 2):
+                return 2
         else:
             return 1
 
@@ -128,8 +118,7 @@ class Game(object):
         original_row, original_col = original_point
         target_point, target_color = target_info
         target_row, target_col = target_point
-        found = False
-        while not self.q.empty() and not found:
+        while not self.q.empty():
             row, col, used, last_pos, turns = q_elem = self.q.get()
             if turns > 3:
                 continue
@@ -137,22 +126,24 @@ class Game(object):
             finish_d = list(filter(lambda d: self.step_result(q_elem, target_point, target_color, d) == 2, self.d))
             if len(finish_d) != 0:
                 d_row, d_col = finish_d[0]
-                used.append((row + d_row, col + d_col))
+                new_row, new_col = row + d_row, col + d_col
+                used.append((new_row, new_col))
                 self.drawer.erase((original_row, original_col), (target_row, target_col))
                 self.drawer.draw_line(used)
                 if self.is_empty():
                     self.drawer.congratulations()
                 self.chosen = None
-                found = True
+                return
 
             step_d = list(filter(lambda d: self.step_result(q_elem, target_point, target_color, d) == 1, self.d))
             for d_row, d_col in step_d:
-                used.append((row + d_row, col + d_col))
+                new_row, new_col = row + d_row, col + d_col
+                used.append((new_row, new_col))
                 last_pos_bak = last_pos
                 if (d_row, d_col) != last_pos:
                     turns += 1
                 last_pos = (d_row, d_col)
-                self.q.put((row + d_row, col + d_col, used[:], last_pos, turns))
+                self.q.put((new_row, new_col, used[:], last_pos, turns))
                 used.pop()
                 if last_pos_bak != last_pos:
                     last_pos = last_pos_bak
