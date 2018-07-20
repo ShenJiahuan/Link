@@ -38,18 +38,16 @@ class Game(object):
         for color in range(1, self.color_num + 1):
             count = 0
             while count < int(self.row * self.col / self.color_num) and not self.is_full():
-                random_row = random.randint(0, self.row - 1)
-                random_col = random.randint(0, self.col - 1)
+                random_row, random_col =  random.randint(0, self.row - 1), random.randint(0, self.col - 1)
                 if self.matrix[random_row][random_col] == 0:
                     self.matrix[random_row][random_col] = color
                     count += 1
 
     @staticmethod
     def get_pos(x, y):
-        x0 = x * (Game.size + Game.border) + Game.border + Game.offset
-        y0 = y * (Game.size + Game.border) + Game.border + Game.offset
-        x1 = x0 + Game.size
-        y1 = y0 + Game.size
+        x0, y0 = x * (Game.size + Game.border) + Game.border + Game.offset, \
+                 y * (Game.size + Game.border) + Game.border + Game.offset
+        x1, y1 = x0 + Game.size, y0 + Game.size
         return x0, y0, x1, y1
 
     def get_color(self, x, y):
