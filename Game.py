@@ -16,13 +16,11 @@ class Game(object):
         self.row, self.col = row, col
         self.color_num = len(Game.colors) - 1
         self.matrix = [[0 for _ in range(col)] for _ in range(row)]
-        self.chosen = None
-        self.highlighted = None
+        self.chosen = self.highlighted = None
         self.q = queue.Queue()
         self.generate()
         self.height, self.width = self.get_size()
         self.drawer = Draw(self, row, col)
-        self.drawer.draw()
 
     def play(self):
         self.drawer.play()

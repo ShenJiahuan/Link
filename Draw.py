@@ -11,6 +11,7 @@ class Draw(object):
         self.w = Canvas(self.root, width=game.width, height=game.height, background="white")
         self.w.pack()
         self.w.bind_all("<Button-1>", game.call_back)
+        self.draw()
 
     def draw(self):
         for row in range(self.row):
