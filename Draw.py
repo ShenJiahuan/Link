@@ -27,13 +27,11 @@ class Draw(object):
         for i in range(len(used) - 1):
             x0, y0, x1, y1 = self.game.get_pos(used[i])
             x2, y2, x3, y3 = self.game.get_pos(used[i + 1])
+            color = {"draw": "red", "erase": "white"}
+            self.w.create_line(self._mean(x0, x1), self._mean(y0, y1), self._mean(x2, x3), self._mean(y2, y3),
+                               fill=color[option], width=2)
             if option == "draw":
-                self.w.create_line(self._mean(x0, x1), self._mean(y0, y1), self._mean(x2, x3), self._mean(y2, y3),
-                                   fill="red", width=2)
                 self.w.after(300, self.line_option, used, "erase")
-            elif option == "erase":
-                self.w.create_line(self._mean(x0, x1), self._mean(y0, y1), self._mean(x2, x3), self._mean(y2, y3),
-                                   fill="white", width=2)
 
     def highlight(self, point):
         row, col = point
