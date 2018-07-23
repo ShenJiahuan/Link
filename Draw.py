@@ -29,7 +29,8 @@ class Draw(object):
             x0, y0, x1, y1 = self.game.get_pos(used[i])
             x2, y2, x3, y3 = self.game.get_pos(used[i + 1])
             color = {"draw": "red", "erase": "white"}
-            self.w.create_line(self._mean(x0, x1), self._mean(y0, y1), self._mean(x2, x3), self._mean(y2, y3),
+            x4, y4, x5, y5 = [self._mean(_[0], _[1]) for _ in [(x0, x1), (y0, y1), (x2, x3), (y2, y3)]]
+            self.w.create_line(x4, y4, x5, y5,
                                fill=color[option], width=2)
             if option == "draw":
                 self.w.after(300, self.line_option, used, "erase")
