@@ -7,7 +7,7 @@ class Draw(object):
         self.col = col
         self.game = game
         self.root = Tk()
-        self.root.title("连连看")
+        self.root.title("Link")
         self.w = Canvas(self.root, width=game.width, height=game.height, background="white")
         self.w.pack()
         self.w.bind_all("<Button-1>", game.call_back)
